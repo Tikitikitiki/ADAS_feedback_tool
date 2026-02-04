@@ -22,3 +22,22 @@ This app allows drivers to log important ADAS moments with **one tap**, capturin
 
 Each tap automatically records the timestamp and GPS location.  
 Additional context (such as road type) may be added later using open source map data.
+
+## Running Locally
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the local server:
+   ```bash
+   npm start
+   ```
+
+3. Open your browser and navigate to:
+   ```
+   http://localhost:8080
+   ```
+
+The app will record all events to browser storage. Use the **Export CSV** button to download your session data.
