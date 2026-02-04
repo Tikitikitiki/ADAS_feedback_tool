@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ADAS Feedback Tool</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>ADAS Feedback Tool</h1>
+      <p>Tap an event to record timestamp + GPS (one-tap).</p>
+
+      <div class="buttons">
+        <button data-event="ACC: Ghost brake" class="event">ACC — Ghost brake</button>
+        <button data-event="ACC: Didn't brake enough" class="event">ACC — Didn't brake enough</button>
+        <button data-event="LKA: Unexpected steering" class="event">LKA — Unexpected steering</button>
+        <button data-event="SpeedSign: Speed sign wrong" class="event">Speed sign — Wrong sign</button>
+      </div>
+
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="margin:0">Recorded Events</h2>
+          <button id="exportBtn" class="export">⬇ Export CSV</button>
+        </div>
+        <ul id="eventsList" class="events"></ul>
+      </section>
+
+      <div id="status" class="status">Ready</div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

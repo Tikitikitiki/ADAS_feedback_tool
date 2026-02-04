@@ -1,0 +1,11 @@
+{
+  "name": "adas-feedback-tool",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node serve.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
