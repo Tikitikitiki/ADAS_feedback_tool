@@ -3,6 +3,7 @@
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); margin:0; padding:24px}
 main{max-width:760px;margin:0 auto;background:var(--card);padding:24px;border-radius:10px;box-shadow:0 6px 18px rgba(28,37,50,0.08)}
 h1{margin:0 0 8px;font-size:20px}
+h2{font-size:16px}
 p{margin:0 0 16px;color:var(--muted)}
 .buttons{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
 button.event{padding:14px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);background:linear-gradient(180deg,#fff,#f7f9ff);cursor:pointer;font-weight:600}
@@ -13,3 +14,6 @@ button.event:active{transform:translateY(1px)}
 button.export{padding:8px 12px;font-size:13px;background:var(--accent);color:#fff;border:0;border-radius:6px;cursor:pointer;font-weight:500}
 button.export:hover{opacity:0.9}
 button.export:active{transform:translateY(1px)}
+button.zoom-btn{padding:8px 12px;font-size:13px;background:var(--accent);color:#fff;border:0;border-radius:6px;cursor:pointer;font-weight:500}
+button.zoom-btn:hover{opacity:0.9}
+button.zoom-btn:active{transform:translateY(1px)}

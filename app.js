@@ -1,4 +1,6 @@
 const eventsKey = 'adas_events'
+let map
+let markers = []
 
 function setStatus(msg){
   const el = document.getElementById('status')
@@ -13,6 +15,51 @@ function saveEvents(list){
   localStorage.setItem(eventsKey, JSON.stringify(list))
 }
 
+function initMap(){
+  const mapElement = document.getElementById('map')
+  if(!mapElement) return
+  
+  map = L.map(mapElement).setView([37.7749, -122.4194], 12)
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map)
+}
+
+function updateMap(){
+  if(!map) return
+  
+  markers.forEach(m => map.removeLayer(m))
+  markers = []
+  
+  const list = loadEvents()
+  const group = new L.featureGroup()
+  
+  list.forEach(ev => {
+    if(ev.lat && ev.lng){
+      const marker = L.circleMarker([ev.lat, ev.lng], {
+        radius: 6,
+        fillColor: '#ff4444',
+        color: '#cc0000',
+        weight: 2,
+        opacity: 0.8,
+        fillOpacity: 0.7
+      })
+      
+      marker.bindPopup(`<div style="font-size:12px"><strong>${ev.type}</strong><br>${ev.time}</div>`)
+      
+      marker.addTo(map)
+      markers.push(marker)
+      group.addLayer(marker)
+    }
+  })
+  
+  if(markers.length > 0){
+    map.fitBounds(group.getBounds(), {padding: [50, 50]})
+  }
+}
+
 function render(){
   const list = loadEvents()
   const ul = document.getElementById('eventsList')
@@ -22,6 +69,7 @@ function render(){
     li.textContent = `${ev.type} — ${ev.time} ${ev.lat?`(lat:${ev.lat.toFixed(5)} lng:${ev.lng.toFixed(5)})`:"(no-geo)"}`
     ul.appendChild(li)
   })
+  updateMap()
 }
 
 function recordEvent(type){
@@ -70,6 +118,7 @@ function downloadCSV(){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  initMap()
   document.querySelectorAll('button.event').forEach(b=>{
     b.addEventListener('click',e=>{
       const t = b.getAttribute('data-event')
@@ -78,5 +127,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   })
   const exportBtn = document.getElementById('exportBtn')
   if(exportBtn) exportBtn.addEventListener('click',downloadCSV)
+  
+  const zoomInBtn = document.getElementById('zoomInBtn')
+  const zoomOutBtn = document.getElementById('zoomOutBtn')
+  if(zoomInBtn) zoomInBtn.addEventListener('click',()=>{
+    if(map) map.setZoom(map.getZoom() + 1)
+  })
+  if(zoomOutBtn) zoomOutBtn.addEventListener('click',()=>{
+    if(map) map.setZoom(map.getZoom() - 1)
+  })
+  
   render()
 })

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>ADAS Feedback Tool</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   </head>
   <body>
     <main>
@@ -17,6 +19,15 @@
         <button data-event="LKA: Unexpected steering" class="event">LKA — Unexpected steering</button>
         <button data-event="SpeedSign: Speed sign wrong" class="event">Speed sign — Wrong sign</button>
       </div>
+
+      <section>
+        <h2>Map</h2>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button id="zoomInBtn" class="zoom-btn">🔍+ Zoom In</button>
+          <button id="zoomOutBtn" class="zoom-btn">🔍− Zoom Out</button>
+        </div>
+        <div id="map" style="width:100%;height:400px;border-radius:8px;border:1px solid #eee"></div>
+      </section>
 
       <section>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
