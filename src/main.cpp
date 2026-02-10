@@ -1,4 +1,12 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <cctype>
+#include <thread>
+#include <chrono>
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 

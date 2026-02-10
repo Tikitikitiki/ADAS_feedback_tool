@@ -22,3 +22,6 @@ Thumbs.db
 
 #downloaded log files
 *.csv
+
+# Build
+build/
