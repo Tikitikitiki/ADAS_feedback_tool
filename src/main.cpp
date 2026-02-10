@@ -89,22 +89,34 @@ std::string query_overpass(const std::string &lat, const std::string &lon, int r
 
 // https://wiki.openstreetmap.org/wiki/Key%3Ahighway
 std::string find_road_type_for_point(const std::string &lat_s, const std::string &lon_s){
+    std::cerr << "[DEBUG] Querying road type for lat=" << lat_s << " lon=" << lon_s << std::endl;
     const std::vector<int> radii = {20, 50};
     for(int radius: radii){
+        std::cerr << "[DEBUG]   Trying radius=" << radius << " meters..." << std::endl;
         std::string resp = query_overpass(lat_s, lon_s, radius, "tags");
-        if(resp.empty()) continue; // network error -> try next radius
+        if(resp.empty()) {
+            std::cerr << "[DEBUG]   Empty response, trying next radius" << std::endl;
+            continue; // network error -> try next radius
+        }
+        std::cerr << "[DEBUG]   Got response (" << resp.size() << " bytes)" << std::endl;
         try{
             auto j = json::parse(resp);
             if(j.contains("elements") && j["elements"].is_array()){
+                std::cerr << "[DEBUG]   Found " << j["elements"].size() << " elements" << std::endl;
                 for(auto &el: j["elements"]){
                     if(!el.contains("tags") || !el["tags"].contains("highway")) continue;
-                    return el["tags"]["highway"].get<std::string>();
+                    std::string roadType = el["tags"]["highway"].get<std::string>();
+                    std::cerr << "[DEBUG]   -> Found road type: " << roadType << std::endl;
+                    return roadType;
                 }
             }
+            std::cerr << "[DEBUG]   No highway tag found in elements" << std::endl;
         }catch(...){
+            std::cerr << "[DEBUG]   Parse error, trying next radius" << std::endl;
             // parse error -> try next radius
         }
     }
+    std::cerr << "[DEBUG]   No road type found, returning NA" << std::endl;
     return std::string("NA");
 }
 
@@ -130,8 +142,8 @@ int main(int argc, char** argv){
     for(size_t i=0;i<cols.size();++i){
         std::string c = cols[i];
         std::transform(c.begin(), c.end(), c.begin(), [](unsigned char ch){ return std::tolower(ch); });
-        if(c == "latitude" || c=="lat") latIdx = i;
-        if(c == "longitude" || c=="lon" || c=="lng") lonIdx = i;
+        if(c == "latitude") latIdx = i;
+        if(c == "longitude") lonIdx = i;
     }
     // write header with new column
     for(size_t i=0;i<cols.size();++i){
@@ -155,6 +167,7 @@ int main(int argc, char** argv){
     size_t row = 0;
     while(std::getline(inf, line)){
         ++row;
+        std::cerr << "[DEBUG] Processing row " << row << std::endl;
         auto fields = parse_csv_line(line);
         std::string roadType = "";
         if(latIdx < (int)fields.size() && lonIdx < (int)fields.size()){
@@ -178,6 +191,7 @@ int main(int argc, char** argv){
             outf << quote_csv(fields[i]);
         }
         outf << ',' << quote_csv(roadType) << '\n';
+        std::cerr << "[DEBUG] Row " << row << " done, sleeping..." << std::endl;
         // be kind to Overpass (default 200ms as requested)
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
