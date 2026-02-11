@@ -90,31 +90,28 @@ std::string query_overpass(const std::string &lat, const std::string &lon, int r
 // https://wiki.openstreetmap.org/wiki/Key%3Ahighway
 std::string find_road_type_for_point(const std::string &lat_s, const std::string &lon_s){
     std::cerr << "[DEBUG] Querying road type for lat=" << lat_s << " lon=" << lon_s << std::endl;
-    const std::vector<int> radii = {20, 50};
-    for(int radius: radii){
-        std::cerr << "[DEBUG]   Trying radius=" << radius << " meters..." << std::endl;
-        std::string resp = query_overpass(lat_s, lon_s, radius, "tags");
-        if(resp.empty()) {
-            std::cerr << "[DEBUG]   Empty response, trying next radius" << std::endl;
-            continue; // network error -> try next radius
-        }
-        std::cerr << "[DEBUG]   Got response (" << resp.size() << " bytes)" << std::endl;
-        try{
-            auto j = json::parse(resp);
-            if(j.contains("elements") && j["elements"].is_array()){
-                std::cerr << "[DEBUG]   Found " << j["elements"].size() << " elements" << std::endl;
-                for(auto &el: j["elements"]){
-                    if(!el.contains("tags") || !el["tags"].contains("highway")) continue;
-                    std::string roadType = el["tags"]["highway"].get<std::string>();
-                    std::cerr << "[DEBUG]   -> Found road type: " << roadType << std::endl;
-                    return roadType;
-                }
+    int radius = 20;
+    std::cerr << "[DEBUG]   Trying radius=" << radius << " meters..." << std::endl;
+    std::string resp = query_overpass(lat_s, lon_s, radius, "tags");
+    if(resp.empty()) {
+        std::cerr << "[DEBUG]   Empty response, returning NA" << std::endl;
+        return std::string("NA");
+    }
+    std::cerr << "[DEBUG]   Got response (" << resp.size() << " bytes)" << std::endl;
+    try{
+        auto j = json::parse(resp);
+        if(j.contains("elements") && j["elements"].is_array()){
+            std::cerr << "[DEBUG]   Found " << j["elements"].size() << " elements" << std::endl;
+            for(auto &el: j["elements"]){
+                if(!el.contains("tags") || !el["tags"].contains("highway")) continue;
+                std::string roadType = el["tags"]["highway"].get<std::string>();
+                std::cerr << "[DEBUG]   -> Found road type: " << roadType << std::endl;
+                return roadType;
             }
-            std::cerr << "[DEBUG]   No highway tag found in elements" << std::endl;
-        }catch(...){
-            std::cerr << "[DEBUG]   Parse error, trying next radius" << std::endl;
-            // parse error -> try next radius
         }
+        std::cerr << "[DEBUG]   No highway tag found in elements" << std::endl;
+    }catch(...){
+        std::cerr << "[DEBUG]   Parse error" << std::endl;
     }
     std::cerr << "[DEBUG]   No road type found, returning NA" << std::endl;
     return std::string("NA");
@@ -127,8 +124,17 @@ int main(int argc, char** argv){
     }
     std::string inpath = argv[1];
     std::string outpath;
-    if(argc >=3) outpath = argv[2];
-    else outpath = inpath + ".with_roads.csv";
+    if(argc >=3) {
+        outpath = argv[2];
+    } else {
+        // Insert "_with_roadtype" before .csv extension
+        size_t dotPos = inpath.rfind(".csv");
+        if(dotPos != std::string::npos) {
+            outpath = inpath.substr(0, dotPos) + "_with_roadtype.csv";
+        } else {
+            outpath = inpath + "_with_roadtype.csv";
+        }
+    }
 
     std::ifstream inf(inpath);
     if(!inf){ std::cerr << "Failed to open input: " << inpath << "\n"; return 2; }
@@ -197,6 +203,14 @@ int main(int argc, char** argv){
     }
 
     curl_global_cleanup();
+    inf.close();
+    outf.close();
+    
+    // Delete the original input file
+    if(std::remove(inpath.c_str()) != 0) {
+        std::cerr << "Warning: Failed to delete original file: " << inpath << std::endl;
+    }
+    
     std::cout << "Wrote: " << outpath << std::endl;
     return 0;
 }

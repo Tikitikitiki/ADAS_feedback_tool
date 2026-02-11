@@ -115,6 +115,10 @@ function downloadCSV(){
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
   setStatus('CSV exported')
+  
+  // Clear all events for next session
+  saveEvents([])
+  render()
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
